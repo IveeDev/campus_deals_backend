@@ -8,6 +8,13 @@
       "when": 1760074194455,
       "tag": "0000_perpetual_sharon_ventura",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1760444475779,
+      "tag": "0001_tired_venus",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,2 @@
+CREATE TYPE "public"."condition" AS ENUM('brand_new', 'used');--> statement-breakpoint
+ALTER TABLE "listings" ALTER COLUMN "condition" SET DATA TYPE "public"."condition" USING "condition"::"public"."condition";

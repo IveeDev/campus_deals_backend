@@ -7,8 +7,12 @@ import {
   numeric,
   integer,
   boolean,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+
+// Define the allowed values
+export const conditionEnum = pgEnum("condition", ["brand_new", "used"]);
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -42,7 +46,7 @@ export const categories = pgTable("categories", {
 export const listings = pgTable("listings", {
   id: serial("id").primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
-  condition: varchar("condition", { length: 50 }).notNull(),
+  condition: conditionEnum("condition").notNull(),
   description: text("description").notNull(),
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
   imageUrl: text("image_url"),
@@ -86,24 +90,17 @@ export const messages = pgTable("messages", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const reviews = pgTable(
-  "reviews",
-  {
-    id: serial("id").primaryKey(),
-    reviewerId: integer("reviewer_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    revieweeId: integer("reviewee_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    listingId: integer("listing_id")
-      .notNull()
-      .references(() => listings.id, { onDelete: "cascade" }),
-    rating: integer("rating").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-  },
-  table => ({
-    // manual constraint for rating between 1 and 5
-    ratingCheck: sql`CHECK (${table.rating} >= 1 AND ${table.rating} <= 5)`,
-  })
-);
+export const reviews = pgTable("reviews", {
+  id: serial("id").primaryKey(),
+  reviewerId: integer("reviewer_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  revieweeId: integer("reviewee_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  listingId: integer("listing_id")
+    .notNull()
+    .references(() => listings.id, { onDelete: "cascade" }),
+  rating: integer("rating").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
