@@ -2,6 +2,7 @@ import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 import authRoute from "#routes/auth.routes.js";
+import userRoute from "#routes/user.routes.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import logger from "#config/logger.js";
@@ -37,6 +38,7 @@ app.get("/api", (req, res) => {
 });
 
 app.use("/api/v1/auth", authRoute);
+app.use("/api/v1/users", userRoute);
 
 app.use((req, res) => {
   res.status(404).json({ error: "Routes not found" });
