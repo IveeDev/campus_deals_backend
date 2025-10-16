@@ -9,7 +9,6 @@ import {
   boolean,
   pgEnum,
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
 
 // Define the allowed values
 export const conditionEnum = pgEnum("condition", ["brand_new", "used"]);

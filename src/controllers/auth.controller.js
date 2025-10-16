@@ -110,8 +110,8 @@ export const signOut = async (req, res, next) => {
     if (token) {
       try {
         user = jwttoken.verify(token); // or jwttoken.decode() if you don’t need to verify signature
-      } catch (err) {
-        logger.warn("Invalid or expired token during signout");
+      } catch (error) {
+        logger.warn("Invalid or expired token during signout", error.message);
       }
     }
 
@@ -122,7 +122,7 @@ export const signOut = async (req, res, next) => {
         `User ${user.email} (ID: ${user.id}) signed out successfully`
       );
       res.status(200).json({
-        message: `User signed out successfully`,
+        message: "User signed out successfully",
         user: {
           id: user.id,
           email: user.email,
