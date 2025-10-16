@@ -10,19 +10,25 @@ export const PAGINATION = {
 };
 
 export const USER_QUERY = {
-  DEFAULT_SORT_BY: 'createdAt',
-  DEFAULT_ORDER: 'desc',
+  DEFAULT_SORT_BY: "createdAt",
+  DEFAULT_ORDER: "desc",
   ALLOWED_SORT_FIELDS: [
-    'id', 'name', 'email', 'phone', 'role', 
-    'is_verified', 'createdAt', 'updatedAt'
+    "id",
+    "name",
+    "email",
+    "phone",
+    "role",
+    "is_verified",
+    "createdAt",
+    "updatedAt",
   ],
-  ALLOWED_ORDERS: ['asc', 'desc'],
-  SEARCHABLE_FIELDS: ['name', 'email', 'phone'],
+  ALLOWED_ORDERS: ["asc", "desc"],
+  SEARCHABLE_FIELDS: ["name", "email", "phone"],
 };
 
 export const USER_ERRORS = {
-  FETCH_FAILED: 'Failed to fetch users',
-  INVALID_SORT_FIELD: 'Invalid sort field provided',
-  INVALID_ORDER: 'Invalid sort order provided',
-  INVALID_PAGINATION: 'Invalid pagination parameters',
+  FETCH_FAILED: "Failed to fetch users",
+  INVALID_SORT_FIELD: "Invalid sort field provided",
+  INVALID_ORDER: "Invalid sort order provided",
+  INVALID_PAGINATION: "Invalid pagination parameters",
 };

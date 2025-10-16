@@ -2,12 +2,12 @@ import logger from "#src/config/logger.js";
 import { db } from "#config/database.js";
 import { users } from "#models/user.model.js";
 import { asc, desc, ilike, or, eq, and, count } from "drizzle-orm";
-import { 
-  validatePaginationParams, 
-  validateSortParams, 
-  sanitizeSearch, 
+import {
+  validatePaginationParams,
+  validateSortParams,
+  sanitizeSearch,
   validateFilters,
-  ValidationError 
+  ValidationError,
 } from "#utils/validation.js";
 import { USER_ERRORS } from "#config/pagination.js";
 
@@ -77,23 +77,23 @@ function buildWhereConditions(search, filters) {
  */
 function buildOrderBy(sortBy, order) {
   const sortField = users[sortBy] || users.createdAt;
-  return order === 'asc' ? asc(sortField) : desc(sortField);
+  return order === "asc" ? asc(sortField) : desc(sortField);
 }
 
 /**
  * Get paginated, sortable, searchable list of users with comprehensive validation
- * 
+ *
  * @param {UserQueryOptions} options - Query options
  * @returns {Promise<UserListResponse>} Paginated user data with metadata
- * 
+ *
  * @throws {ValidationError} When input parameters are invalid
  * @throws {Error} When database operation fails
- * 
+ *
  * @example
  * ```javascript
  * // Basic usage
  * const result = await getAllUsers({ page: 1, limit: 20 });
- * 
+ *
  * // With search and filters
  * const result = await getAllUsers({
  *   page: 1,
@@ -111,12 +111,12 @@ function buildOrderBy(sortBy, order) {
 export const getAllUsers = async (options = {}) => {
   const startTime = Date.now();
   const requestId = Math.random().toString(36).substring(7);
-  
+
   try {
-    logger.info(`[${requestId}] Starting user query`, { 
+    logger.info(`[${requestId}] Starting user query`, {
       options,
       service: "user.service",
-      operation: "getAllUsers"
+      operation: "getAllUsers",
     });
 
     // Input validation and sanitization
@@ -126,15 +126,20 @@ export const getAllUsers = async (options = {}) => {
     const filters = validateFilters(options.filters);
 
     logger.debug(`[${requestId}] Validated parameters`, {
-      page, limit, sortBy, order, search, filters
+      page,
+      limit,
+      sortBy,
+      order,
+      search,
+      filters,
     });
 
     // Build query conditions
     const whereConditions = buildWhereConditions(search, filters);
-    const whereCondition = whereConditions.length 
-      ? and(...whereConditions) 
+    const whereCondition = whereConditions.length
+      ? and(...whereConditions)
       : undefined;
-    
+
     const orderBy = buildOrderBy(sortBy, order);
 
     // Execute queries in parallel for better performance
@@ -158,7 +163,7 @@ export const getAllUsers = async (options = {}) => {
       db
         .select({ total: count(users.id) })
         .from(users)
-        .where(whereCondition)
+        .where(whereCondition),
     ]);
 
     // Process results
@@ -177,8 +182,8 @@ export const getAllUsers = async (options = {}) => {
           search: search || null,
           sortBy,
           order,
-          filters: Object.keys(filters).length ? filters : null
-        }
+          filters: Object.keys(filters).length ? filters : null,
+        },
       },
       data,
     };
@@ -187,19 +192,18 @@ export const getAllUsers = async (options = {}) => {
     logger.info(`[${requestId}] User query completed successfully`, {
       duration: `${duration}ms`,
       resultCount: data.length,
-      totalCount: total
+      totalCount: total,
     });
 
     return response;
-
   } catch (error) {
     const duration = Date.now() - startTime;
-    
+
     if (error instanceof ValidationError) {
       logger.warn(`[${requestId}] Validation error in user query`, {
         error: error.message,
         field: error.field,
-        duration: `${duration}ms`
+        duration: `${duration}ms`,
       });
       throw error;
     }
@@ -209,7 +213,7 @@ export const getAllUsers = async (options = {}) => {
       stack: error.stack,
       duration: `${duration}ms`,
       service: "user.service",
-      operation: "getAllUsers"
+      operation: "getAllUsers",
     });
 
     throw new Error(USER_ERRORS.FETCH_FAILED);

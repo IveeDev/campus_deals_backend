@@ -1,4 +1,4 @@
-import { PAGINATION, USER_QUERY, USER_ERRORS } from '#config/pagination.js';
+import { PAGINATION, USER_QUERY, USER_ERRORS } from "#config/pagination.js";
 
 /**
  * Custom error class for validation errors
@@ -6,7 +6,7 @@ import { PAGINATION, USER_QUERY, USER_ERRORS } from '#config/pagination.js';
 export class ValidationError extends Error {
   constructor(message, field = null) {
     super(message);
-    this.name = 'ValidationError';
+    this.name = "ValidationError";
     this.field = field;
   }
 }
@@ -18,7 +18,7 @@ export class ValidationError extends Error {
  */
 export function validatePaginationParams({ page, limit }) {
   const validatedPage = Math.max(
-    PAGINATION.MIN_PAGE, 
+    PAGINATION.MIN_PAGE,
     parseInt(page) || PAGINATION.DEFAULT_PAGE
   );
 
@@ -45,17 +45,19 @@ export function validatePaginationParams({ page, limit }) {
  * @returns {Object} Validated sort parameters
  */
 export function validateSortParams(sortBy, order) {
-  const validatedSortBy = USER_QUERY.ALLOWED_SORT_FIELDS.includes(sortBy) 
-    ? sortBy 
+  const validatedSortBy = USER_QUERY.ALLOWED_SORT_FIELDS.includes(sortBy)
+    ? sortBy
     : USER_QUERY.DEFAULT_SORT_BY;
 
-  const validatedOrder = USER_QUERY.ALLOWED_ORDERS.includes(order?.toLowerCase()) 
-    ? order.toLowerCase() 
+  const validatedOrder = USER_QUERY.ALLOWED_ORDERS.includes(
+    order?.toLowerCase()
+  )
+    ? order.toLowerCase()
     : USER_QUERY.DEFAULT_ORDER;
 
   if (sortBy && !USER_QUERY.ALLOWED_SORT_FIELDS.includes(sortBy)) {
     throw new ValidationError(
-      `${USER_ERRORS.INVALID_SORT_FIELD}. Allowed: ${USER_QUERY.ALLOWED_SORT_FIELDS.join(', ')}`
+      `${USER_ERRORS.INVALID_SORT_FIELD}. Allowed: ${USER_QUERY.ALLOWED_SORT_FIELDS.join(", ")}`
     );
   }
 
@@ -71,10 +73,10 @@ export function validateSortParams(sortBy, order) {
  * @returns {string} Sanitized search term
  */
 export function sanitizeSearch(search) {
-  if (!search || typeof search !== 'string') {
-    return '';
+  if (!search || typeof search !== "string") {
+    return "";
   }
-  
+
   // Remove potentially dangerous characters and trim
   return search.trim().slice(0, 100); // Limit search length
 }
@@ -88,16 +90,16 @@ export function validateFilters(filters = {}) {
   const validatedFilters = {};
 
   // Validate role filter
-  if (filters.role && typeof filters.role === 'string') {
+  if (filters.role && typeof filters.role === "string") {
     validatedFilters.role = filters.role.trim();
   }
 
   // Validate is_verified filter
   if (filters.is_verified !== undefined) {
     const boolValue = filters.is_verified;
-    if (boolValue === 'true' || boolValue === true) {
+    if (boolValue === "true" || boolValue === true) {
       validatedFilters.is_verified = true;
-    } else if (boolValue === 'false' || boolValue === false) {
+    } else if (boolValue === "false" || boolValue === false) {
       validatedFilters.is_verified = false;
     }
   }
