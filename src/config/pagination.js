@@ -32,3 +32,26 @@ export const USER_ERRORS = {
   INVALID_ORDER: "Invalid sort order provided",
   INVALID_PAGINATION: "Invalid pagination parameters",
 };
+
+export const CAMPUS_QUERY = {
+  DEFAULT_SORT_BY: "createdAt",
+  DEFAULT_ORDER: "desc",
+  ALLOWED_SORT_FIELDS: [
+    "id",
+    "name",
+    "slug",
+    "lon",
+    "lat",
+    "createdAt",
+    "updatedAt",
+  ],
+  ALLOWED_ORDERS: ["asc", "desc"],
+  SEARCHABLE_FIELDS: ["name", "slug"],
+};
+
+export const CAMPUS_ERRORS = {
+  FETCH_FAILED: "Failed to fetch campuses",
+  INVALID_SORT_FIELD: "Invalid sort field provided",
+  INVALID_ORDER: "Invalid sort order provided",
+  INVALID_PAGINATION: "Invalid pagination parameters",
+};

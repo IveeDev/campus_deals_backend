@@ -9,7 +9,7 @@ import {
   validateFilters,
   ValidationError,
 } from "#utils/validation.js";
-import { USER_ERRORS } from "#config/pagination.js";
+import { USER_ERRORS, USER_QUERY } from "#config/pagination.js";
 
 /**
  * @typedef {Object} UserQueryOptions
@@ -120,8 +120,16 @@ export const getAllUsers = async (options = {}) => {
     });
 
     // Input validation and sanitization
-    const { page, limit, offset } = validatePaginationParams(options);
-    const { sortBy, order } = validateSortParams(options.sortBy, options.order);
+    const { page, limit, offset } = validatePaginationParams(
+      options,
+      USER_ERRORS
+    );
+    const { sortBy, order } = validateSortParams(
+      options.sortBy,
+      options.order,
+      USER_QUERY,
+      USER_ERRORS
+    );
     const search = sanitizeSearch(options.search);
     const filters = validateFilters(options.filters);
 
@@ -217,5 +225,122 @@ export const getAllUsers = async (options = {}) => {
     });
 
     throw new Error(USER_ERRORS.FETCH_FAILED);
+  }
+};
+
+/**
+ * Get a single user by ID
+ * @param {number} id - User ID
+ * @returns {Promise<Object>} User data (excludes password)
+ * @throws {Error} When user is not found
+ */
+export const getUserById = async id => {
+  try {
+    const [user] = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        phone: users.phone,
+        role: users.role,
+        is_verified: users.is_verified,
+        created_at: users.createdAt,
+        updated_at: users.updatedAt,
+      })
+      .from(users)
+      .where(eq(users.id, id))
+      .limit(1);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return user;
+  } catch (error) {
+    logger.error(`Error getting user ${id}:`, error.message);
+    throw error;
+  }
+};
+
+/**
+ * Update a user by ID
+ * @param {number} id - User ID
+ * @param {Object} updates - Fields to update
+ * @returns {Promise<Object>} Updated user data (excludes password)
+ * @throws {Error} When user is not found or email already exists
+ */
+
+/**
+ * Delete a user by ID
+ * @param {number} id - User ID
+ * @returns {Promise<Object>} Deleted user data
+ * @throws {Error} When user is not found
+ */
+export const deleteUser = async id => {
+  try {
+    // First check if user exists
+    await getUserById(id);
+
+    const [deletedUser] = await db
+      .delete(users)
+      .where(eq(users.id, id))
+      .returning({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+      });
+
+    logger.info(`User ${deletedUser.email} deleted successfully`);
+    return deletedUser;
+  } catch (error) {
+    logger.error(`Error deleting user ${id}:`, error.message);
+    throw error;
+  }
+};
+
+export const updateUser = async (id, updates) => {
+  try {
+    // first check if user exists
+    const existingUser = await getUserById(id);
+    if (!existingUser) {
+      throw new Error("User not found");
+    }
+
+    // Check if email is being updated and if it already exists
+    if (updates.email && updates.email !== existingUser.email) {
+      const [emailUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, updates.email))
+        .limit(1);
+      if (emailUser) {
+        throw new Error("Email already in use");
+      }
+    }
+
+    const updatedData = {
+      ...updates,
+      updatedAt: new Date(),
+    };
+
+    const [updatedUser] = await db
+      .update(users)
+      .set(updatedData)
+      .where(eq(users.id, id))
+      .returning({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        phone: users.phone,
+        role: users.role,
+        is_verified: users.is_verified,
+        created_at: users.createdAt,
+        updated_at: users.updatedAt,
+      });
+    logger.info(`User ${updatedUser.email} updated successfully`);
+    return updatedUser;
+  } catch (error) {
+    logger.error(`Error updating user ${id}:`, error.message);
+    throw error;
   }
 };

@@ -2,16 +2,16 @@
 import {
   pgTable,
   serial,
-  timestamp,
   varchar,
   text,
   numeric,
   integer,
   boolean,
+  timestamp,
   pgEnum,
 } from "drizzle-orm/pg-core";
 import { users } from "#models/user.model.js";
-import { categories } from "#models/user.model.js";
+import { categories } from "#models/category.model.js";
 import { campuses } from "#models/campus.model.js";
 
 export const conditionEnum = pgEnum("condition", ["brand_new", "used"]);

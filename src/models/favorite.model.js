@@ -11,4 +11,5 @@ export const favorites = pgTable("favorites", {
     .notNull()
     .references(() => listings.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

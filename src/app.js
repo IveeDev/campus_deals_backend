@@ -3,9 +3,11 @@ import helmet from "helmet";
 import morgan from "morgan";
 import authRoute from "#routes/auth.routes.js";
 import userRoute from "#routes/user.routes.js";
+import campusRoute from "#routes/campus.routes.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import logger from "#config/logger.js";
+import { errorHandler } from "#middleware/errorHandler.middleware.js";
 
 const app = express();
 
@@ -39,9 +41,13 @@ app.get("/api", (req, res) => {
 
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/users", userRoute);
+app.use("/api/v1/campuses", campusRoute);
 
 app.use((req, res) => {
   res.status(404).json({ error: "Routes not found" });
 });
+
+// Global error handler (MUST be last)
+app.use(errorHandler);
 
 export default app;

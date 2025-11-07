@@ -15,4 +15,5 @@ export const reviews = pgTable("reviews", {
     .references(() => listings.id, { onDelete: "cascade" }),
   rating: integer("rating").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

@@ -1,4 +1,4 @@
-import { PAGINATION, USER_QUERY, USER_ERRORS } from "#config/pagination.js";
+import { PAGINATION } from "#config/pagination.js";
 
 /**
  * Custom error class for validation errors
@@ -14,9 +14,10 @@ export class ValidationError extends Error {
 /**
  * Validates and sanitizes pagination parameters
  * @param {Object} params - Raw parameters
+ * @param {Object} errors - Error config (e.g. USER_ERRORS, CAMPUS_ERRORS)
  * @returns {Object} Validated parameters
  */
-export function validatePaginationParams({ page, limit }) {
+export function validatePaginationParams({ page, limit }, errors) {
   const validatedPage = Math.max(
     PAGINATION.MIN_PAGE,
     parseInt(page) || PAGINATION.DEFAULT_PAGE
@@ -28,7 +29,7 @@ export function validatePaginationParams({ page, limit }) {
   );
 
   if (isNaN(validatedPage) || isNaN(validatedLimit)) {
-    throw new ValidationError(USER_ERRORS.INVALID_PAGINATION);
+    throw new ValidationError(errors.INVALID_PAGINATION);
   }
 
   return {
@@ -42,59 +43,46 @@ export function validatePaginationParams({ page, limit }) {
  * Validates sort parameters
  * @param {string} sortBy - Field to sort by
  * @param {string} order - Sort order
+ * @param {Object} config - Query config (e.g. USER_QUERY, CAMPUS_QUERY)
+ * @param {Object} errors - Error config (e.g. USER_ERRORS, CAMPUS_ERRORS)
  * @returns {Object} Validated sort parameters
  */
-export function validateSortParams(sortBy, order) {
-  const validatedSortBy = USER_QUERY.ALLOWED_SORT_FIELDS.includes(sortBy)
+export function validateSortParams(sortBy, order, config, errors) {
+  const validatedSortBy = config.ALLOWED_SORT_FIELDS.includes(sortBy)
     ? sortBy
-    : USER_QUERY.DEFAULT_SORT_BY;
+    : config.DEFAULT_SORT_BY;
 
-  const validatedOrder = USER_QUERY.ALLOWED_ORDERS.includes(
-    order?.toLowerCase()
-  )
+  const validatedOrder = config.ALLOWED_ORDERS.includes(order?.toLowerCase())
     ? order.toLowerCase()
-    : USER_QUERY.DEFAULT_ORDER;
+    : config.DEFAULT_ORDER;
 
-  if (sortBy && !USER_QUERY.ALLOWED_SORT_FIELDS.includes(sortBy)) {
+  if (sortBy && !config.ALLOWED_SORT_FIELDS.includes(sortBy)) {
     throw new ValidationError(
-      `${USER_ERRORS.INVALID_SORT_FIELD}. Allowed: ${USER_QUERY.ALLOWED_SORT_FIELDS.join(", ")}`
+      `${errors.INVALID_SORT_FIELD}. Allowed: ${config.ALLOWED_SORT_FIELDS.join(", ")}`
     );
   }
 
-  return {
-    sortBy: validatedSortBy,
-    order: validatedOrder,
-  };
+  return { sortBy: validatedSortBy, order: validatedOrder };
 }
 
 /**
  * Sanitizes search string
- * @param {string} search - Search term
- * @returns {string} Sanitized search term
  */
 export function sanitizeSearch(search) {
-  if (!search || typeof search !== "string") {
-    return "";
-  }
-
-  // Remove potentially dangerous characters and trim
-  return search.trim().slice(0, 100); // Limit search length
+  if (!search || typeof search !== "string") return "";
+  return search.trim().slice(0, 100);
 }
 
 /**
- * Validates filter parameters
- * @param {Object} filters - Filter object
- * @returns {Object} Validated filters
+ * Validates user filters (optional for specific endpoints)
  */
 export function validateFilters(filters = {}) {
   const validatedFilters = {};
 
-  // Validate role filter
   if (filters.role && typeof filters.role === "string") {
     validatedFilters.role = filters.role.trim();
   }
 
-  // Validate is_verified filter
   if (filters.is_verified !== undefined) {
     const boolValue = filters.is_verified;
     if (boolValue === "true" || boolValue === true) {
@@ -105,4 +93,18 @@ export function validateFilters(filters = {}) {
   }
 
   return validatedFilters;
+}
+
+export function validateCampusFilters(filters = {}) {
+  const validated = {};
+
+  if (filters.name && typeof filters.name === "string") {
+    validated.name = filters.name.trim();
+  }
+
+  if (filters.slug && typeof filters.slug === "string") {
+    validated.slug = filters.slug.trim();
+  }
+
+  return validated;
 }

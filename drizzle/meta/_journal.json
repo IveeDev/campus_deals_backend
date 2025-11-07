@@ -15,6 +15,20 @@
       "when": 1760444475779,
       "tag": "0001_tired_venus",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1762089899017,
+      "tag": "0002_milky_flatman",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1762092539395,
+      "tag": "0003_mute_magneto",
+      "breakpoints": true
     }
   ]
 }

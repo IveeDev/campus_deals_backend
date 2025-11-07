@@ -24,7 +24,7 @@ export const signUp = async (req, res, next) => {
 
     const user = await createUser({ name, email, password, phone });
     const token = jwttoken.sign({
-      id: user.id,
+      id: Number(user.id),
       email: user.email,
       phone: user.phone,
     });
@@ -69,7 +69,7 @@ export const signIn = async (req, res, next) => {
     // AUTH SERVICE
     const user = await authenticateUser({ email, password });
     const token = jwttoken.sign({
-      id: user.id,
+      id: Number(user.id),
       email: user.email,
       role: user.role,
       phone: user.phone,
