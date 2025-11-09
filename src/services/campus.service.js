@@ -10,6 +10,8 @@ import {
   validateCampusFilters,
 } from "#utils/validation.js";
 import { CAMPUS_ERRORS, CAMPUS_QUERY } from "#config/pagination.js";
+import slugify from "slugify";
+import { AppError } from "#src/utils/appError.js";
 
 function buildCampusWhereConditions(search, filters) {
   const conditions = [];
@@ -21,8 +23,8 @@ function buildCampusWhereConditions(search, filters) {
       )
     );
   }
-  if (filters.name) conditions.push(eq(campuses.name, filters.name));
-  if (filters.slug) conditions.push(eq(campuses.slug, filters.slug));
+  if (filters.name) conditions.push(ilike(campuses.name, `%${filters.name}%`));
+  if (filters.slug) conditions.push(ilike(campuses.slug, `%${filters.slug}%`));
   return conditions;
 }
 
@@ -31,10 +33,13 @@ function buildCampusOrderBy(sortBy, order) {
   return order === "asc" ? asc(sortField) : desc(sortField);
 }
 
-export const createCampus = async campusData => {
+export const createCampus = async payload => {
   try {
-    const { name, slug } = campusData;
+    let { name, slug } = payload;
 
+    if (!slug) {
+      slug = slugify(name, { lower: true, strict: true });
+    }
     // 1️⃣ Check for existing campus by slug
     const [existingSlug] = await db
       .select()
@@ -42,12 +47,8 @@ export const createCampus = async campusData => {
       .where(eq(campuses.slug, slug))
       .limit(1);
 
-    if (existingSlug) {
-      const error = new Error(`Campus with slug '${slug}' already exists`);
-      error.status = 409;
-      throw error;
-    }
-
+    if (existingSlug)
+      throw new AppError(`Campus with slug ${slug} already exists`, 409);
     // 2️⃣ Check for existing campus by name
     const [existingName] = await db
       .select()
@@ -55,12 +56,12 @@ export const createCampus = async campusData => {
       .where(ilike(campuses.name, name))
       .limit(1);
 
-    if (existingName) {
-      const error = new Error(`Campus with name '${name}' already exists`);
-      error.status = 409;
-      throw error;
-    }
+    if (existingName)
+      throw new AppError(`Campus with name ${name} already exists`, 409);
 
+    if (error.code === "23505") {
+      throw new AppError("Campus already exists", 409);
+    }
     // 3️⃣ Fetch or reuse coordinates
     let lat = null;
     let lon = null;
@@ -180,9 +181,8 @@ export const getCampusById = async id => {
       .where(eq(campuses.id, id))
       .limit(1);
 
-    if (!campus) {
-      throw new Error("Campus not found");
-    }
+    if (!campus) throw new AppError("Campus not found", 404);
+
     return campus;
   } catch (error) {
     logger.error(`Error getting user ${id}:`, error.message);
@@ -197,9 +197,8 @@ export const getCampusBySlug = async slug => {
       .from(campuses)
       .where(eq(campuses.slug, slug))
       .limit(1);
-    if (!campus) {
-      throw new Error("Campus not found");
-    }
+
+    if (!campus) throw new AppError("Campus not found", 404);
 
     return campus;
   } catch (error) {
@@ -228,15 +227,18 @@ export const deleteCampus = async id => {
   }
 };
 
-export const updateCampus = async (id, updates) => {
+export const updateCampus = async (id, payload) => {
   try {
     const existingCampus = await getCampusById(id);
-    if (!existingCampus) {
-      throw new Error("Campus not found");
-    }
 
+    if (!existingCampus) throw new AppError("Campus not found");
+
+    if (payload.name) {
+      const slug = slugify(payload.name, { lower: true, strict: true });
+      payload.slug = slug;
+    }
     const updatedData = {
-      ...updates,
+      ...payload,
       updateAt: new Date(),
     };
 

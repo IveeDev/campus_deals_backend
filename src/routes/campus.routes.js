@@ -3,7 +3,7 @@ import {
   fetchAllCampuses,
   fetchCampusById,
   fetchCampusBySlug,
-  addCampus,
+  createCampus,
   deleteCampusById,
   updateCampusById,
 } from "#src/controllers/campus.controller.js";
@@ -14,7 +14,7 @@ const router = express.Router();
 router.get("/", authenticateToken, fetchAllCampuses);
 router.get("/slug/:slug", authenticateToken, fetchCampusBySlug);
 router.get("/:id", authenticateToken, fetchCampusById);
-router.post("/", authenticateToken, requireRole(["admin"]), addCampus);
+router.post("/", authenticateToken, requireRole(["admin"]), createCampus);
 router.put("/:id", authenticateToken, requireRole(["admin"]), updateCampusById);
 router.delete(
   "/:id",

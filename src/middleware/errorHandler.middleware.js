@@ -1,29 +1,37 @@
-// src/middleware/errorHandler.js
-import { ValidationError } from "#utils/validation.js";
+import logger from "#src/config/logger.js";
+import { AppError } from "#src/utils/appError.js";
 
-export function errorHandler(err, res) {
-  console.error("🔥 Error caught by global handler:", err);
+export const errorHandler = (err, res) => {
+  logger.error(`❌ ${err.message}`, { stack: err.stack });
 
-  // Validation errors (bad request)
-  if (err instanceof ValidationError) {
+  // Handle AppError explicitly
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      error: err.message,
+      ...(err.details && { details: err.details }),
+    });
+  }
+
+  // Handle Zod validation errors
+  if (err.name === "ZodError") {
     return res.status(400).json({
-      success: false,
-      message: err.message,
-      field: err.field || null,
+      error: "Validation failed",
+      details: err.errors,
     });
   }
 
-  // Database or known fetch errors
-  if (err.message?.includes("Failed to fetch")) {
-    return res.status(500).json({
-      success: false,
-      message: "Database operation failed. Please try again later.",
-    });
+  // Handle JWT errors
+  if (err.name === "JsonWebTokenError") {
+    return res.status(401).json({ error: "Invalid token" });
   }
 
-  // Default fallback for unexpected errors
+  if (err.name === "TokenExpiredError") {
+    return res.status(401).json({ error: "Token expired" });
+  }
+
+  // Default fallback
   return res.status(500).json({
-    success: false,
-    message: "An unexpected error occurred.",
+    error: "Internal server error",
+    message: err.message,
   });
-}
+};

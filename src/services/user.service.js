@@ -10,6 +10,7 @@ import {
   ValidationError,
 } from "#utils/validation.js";
 import { USER_ERRORS, USER_QUERY } from "#config/pagination.js";
+import { AppError } from "#src/utils/appError.js";
 
 /**
  * @typedef {Object} UserQueryOptions
@@ -251,10 +252,7 @@ export const getUserById = async id => {
       .where(eq(users.id, id))
       .limit(1);
 
-    if (!user) {
-      throw new Error("User not found");
-    }
-
+    if (!user) throw new AppError("User not found", 404);
     return user;
   } catch (error) {
     logger.error(`Error getting user ${id}:`, error.message);

@@ -5,64 +5,27 @@ import {
   updateUser,
   deleteUser,
 } from "#src/services/user.service.js";
+import * as factory from "./handlerFactory.js";
 import { formatValidationError } from "#src/utils/format.js";
 import {
   updateUserSchema,
   userIdSchema,
 } from "#src/validations/user.validation.js";
 
-export const fetchAllUsers = async (req, res, next) => {
-  try {
-    const { page, limit, sortBy, order, search, role, is_verified } = req.query;
-    logger.info("Fetching all users...");
-    const result = await getAllUsers({
-      page,
-      limit,
-      sortBy,
-      order,
-      search,
-      filters: { role, is_verified },
-    });
-    res.status(200).json({
-      message: "Users fetched successfully",
-      //   count: result.length,
-      result,
-    });
-  } catch (error) {
-    logger.error(error);
-    next(error);
-  }
-};
+export const fetchAllUsers = factory.getAll({
+  service: getAllUsers,
+  resourceName: "User",
+});
 
 /**
  * Get user by ID
  * @route GET /api/v1/users/:id
  */
-export const fetchUserById = async (req, res, next) => {
-  try {
-    // Validate user ID
-    const validationResult = userIdSchema.safeParse({ id: req.params.id });
-    if (!validationResult.success) {
-      return res.status(400).json({
-        error: "Invalid user ID",
-        details: formatValidationError(validationResult.error),
-      });
-    }
-
-    const { id } = validationResult.data;
-    const user = await getUserById(id);
-
-    res.json({
-      message: "User fetched successfully",
-      data: user,
-    });
-  } catch (error) {
-    if (error.message === "User not found") {
-      return res.status(404).json({ error: "User not found" });
-    }
-    next(error);
-  }
-};
+export const fetchUserById = factory.getOne({
+  schema: userIdSchema,
+  service: getUserById,
+  resourceName: "User",
+});
 
 export const getMe = async (req, res, next) => {
   try {
@@ -163,49 +126,8 @@ export const updateUserById = async (req, res, next) => {
   }
 };
 
-export const deleteUserById = async (req, res, next) => {
-  try {
-    logger.info(`Deleting user by ID: ${req.params.id}`);
-
-    const validationResult = userIdSchema.safeParse({ id: req.params.id });
-    if (!validationResult.success) {
-      return res.status(400).json({
-        error: "Invalid user ID",
-        details: formatValidationError(validationResult.error),
-      });
-    }
-
-    const { id } = validationResult.data;
-
-    // Authorization check: only admin users can delete users
-    if (!req.user || req.user.role !== "admin") {
-      return res.status(403).json({
-        error: "Access denied",
-        message: "Only admin users can delete users",
-      });
-    }
-
-    // Only admin users can delete users (prevent self-deletion or user deletion by non-admins)
-    if (req.user.role !== "admin") {
-      return res.status(403).json({
-        error: "Access denied",
-        message: "Only admin users can delete users",
-      });
-    }
-
-    const deletedUser = await deleteUser(id);
-    logger.info(`User ${deletedUser.email} deleted successfully`);
-    res.json({
-      message: "User deleted successfully",
-      user: deletedUser,
-    });
-  } catch (error) {
-    logger.error(`Error deleting user: ${error.message}`);
-
-    if (error.message === "User not found") {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    next(error);
-  }
-};
+export const deleteUserById = factory.deleteOne({
+  schema: userIdSchema,
+  service: deleteUser,
+  resourceName: "User",
+});

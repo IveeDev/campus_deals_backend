@@ -108,3 +108,17 @@ export function validateCampusFilters(filters = {}) {
 
   return validated;
 }
+
+export function validateCategoryFilters(filters = {}) {
+  const validated = {};
+
+  if (filters.name && typeof filters.name === "string") {
+    validated.name = filters.name.trim();
+  }
+
+  if (filters.slug && typeof filters.slug === "string") {
+    validated.slug = filters.slug.trim();
+  }
+
+  return validated;
+}
