@@ -122,3 +122,70 @@ export function validateCategoryFilters(filters = {}) {
 
   return validated;
 }
+
+export function validateListingFilters(filters = {}) {
+  const validated = {};
+
+  // ✅ campusId
+  if (filters.campusId) {
+    const val = Number(filters.campusId);
+    if (!isNaN(val) && val > 0) validated.campusId = val;
+    else throw new ValidationError("Invalid campusId", "campusId");
+  }
+
+  // ✅ categoryId
+  if (filters.categoryId) {
+    const val = Number(filters.categoryId);
+    if (!isNaN(val) && val > 0) validated.categoryId = val;
+    else throw new ValidationError("Invalid categoryId", "categoryId");
+  }
+
+  // ✅ condition (brand_new / used)
+  if (filters.condition) {
+    const validConditions = ["brand_new", "used"];
+    if (validConditions.includes(filters.condition)) {
+      validated.condition = filters.condition;
+    } else {
+      throw new ValidationError(
+        "Invalid condition. Expected: brand_new or used",
+        "condition"
+      );
+    }
+  }
+
+  // ✅ isAvailable (true/false)
+  if (filters.isAvailable !== undefined) {
+    const val = filters.isAvailable;
+    if (val === "true" || val === true) validated.isAvailable = true;
+    else if (val === "false" || val === false) validated.isAvailable = false;
+    else throw new ValidationError("Invalid isAvailable value", "isAvailable");
+  }
+
+  // ✅ priceMin (>= 0)
+  if (filters.priceMin) {
+    const val = Number(filters.priceMin);
+    if (!isNaN(val) && val >= 0) validated.priceMin = val;
+    else throw new ValidationError("Invalid priceMin", "priceMin");
+  }
+
+  // ✅ priceMax (> priceMin)
+  if (filters.priceMax) {
+    const val = Number(filters.priceMax);
+    if (!isNaN(val) && val >= 0) validated.priceMax = val;
+    else throw new ValidationError("Invalid priceMax", "priceMax");
+  }
+
+  // ✅ Additional rule: priceMax >= priceMin
+  if (
+    validated.priceMin !== undefined &&
+    validated.priceMax !== undefined &&
+    validated.priceMax < validated.priceMin
+  ) {
+    throw new ValidationError(
+      "priceMax cannot be less than priceMin",
+      "priceMax"
+    );
+  }
+
+  return validated;
+}

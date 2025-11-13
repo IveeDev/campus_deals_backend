@@ -70,3 +70,44 @@ export const CATEGORY_ERRORS = {
   INVALID_ORDER: "Invalid sort order provided",
   INVALID_PAGINATION: "Invalid pagination parameters",
 };
+
+export const LISTING_QUERY = {
+  DEFAULT_SORT_BY: "createdAt",
+  DEFAULT_ORDER: "desc",
+
+  ALLOWED_SORT_FIELDS: [
+    "id",
+    "title",
+    "price",
+    "categoryId",
+    "campusId",
+    "condition",
+    "isAvailable",
+    "createdAt",
+    "updatedAt",
+  ],
+
+  ALLOWED_ORDERS: ["asc", "desc"],
+
+  SEARCHABLE_FIELDS: [
+    "title",
+    "description", // ✅ full-text search later
+  ],
+
+  FILTERABLE_FIELDS: [
+    "categoryId",
+    "campusId",
+    "condition",
+    "isAvailable",
+    "priceMin",
+    "priceMax",
+  ],
+};
+
+export const LISTING_ERRORS = {
+  FETCH_FAILED: "Failed to fetch listings",
+  INVALID_SORT_FIELD: "Invalid sort field provided",
+  INVALID_ORDER: "Invalid sort order provided",
+  INVALID_PAGINATION: "Invalid pagination parameters",
+  INVALID_FILTER: "Invalid filter parameters provided",
+};

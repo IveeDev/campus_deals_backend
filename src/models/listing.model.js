@@ -22,13 +22,14 @@ export const listings = pgTable("listings", {
   condition: conditionEnum("condition").notNull(),
   description: text("description").notNull(),
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
-  imageUrl: text("image_url"),
-  userId: integer("user_id")
+  sellerId: integer("seller_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  categoryId: integer("category_id").references(() => categories.id, {
-    onDelete: "set null",
-  }),
+  categoryId: integer("category_id")
+    .references(() => categories.id, {
+      onDelete: "set null",
+    })
+    .notNull(),
   campusId: integer("campus_id").references(() => campuses.id, {
     onDelete: "set null",
   }),

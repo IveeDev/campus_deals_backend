@@ -1,9 +1,13 @@
 import { db } from "#config/database.js";
 import { categories } from "#models/category.model.js";
-import { eq, ilike, asc, desc, or, and, count } from "drizzle-orm";
+import { eq, ilike, or, and, count } from "drizzle-orm";
 import slugify from "slugify";
+import {
+  buildCategoryWhereConditions,
+  buildCategoryOrderBy,
+} from "#src/queries/category.query.js";
 import logger from "#src/config/logger.js";
-import { AppError } from "#src/utils/appError.js";
+import { AppError } from "#src/utils/AppError.js";
 import {
   validatePaginationParams,
   validateSortParams,
@@ -11,28 +15,6 @@ import {
   validateCategoryFilters,
 } from "#src/utils/validation.js";
 import { CATEGORY_QUERY, CATEGORY_ERRORS } from "#src/config/pagination.js";
-
-function buildCategoryWhereConditions(search, filters) {
-  const conditions = [];
-  if (search) {
-    conditions.push(
-      or(
-        ilike(categories.name, `%${search}%`),
-        ilike(categories.slug, `%${search}%`)
-      )
-    );
-  }
-  if (filters.name)
-    conditions.push(ilike(categories.name, `%${filters.name}%`));
-  if (filters.slug)
-    conditions.push(ilike(categories.slug, `%${filters.slug}%`));
-  return conditions;
-}
-
-function buildCategoryOrderBy(sortBy, order) {
-  const sortField = categories[sortBy] || categories.createdAt;
-  return order === "asc" ? asc(sortField) : desc(sortField);
-}
 
 export const createCategory = async payload => {
   try {

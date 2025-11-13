@@ -2,7 +2,11 @@ import logger from "#src/config/logger.js";
 import { db } from "#config/database.js";
 import { campuses } from "#models/campus.model.js";
 import { fetchCoordinates } from "../utils/fetchCoordinates.js";
-import { asc, desc, ilike, or, eq, and, count } from "drizzle-orm";
+import { ilike, eq, and, count } from "drizzle-orm";
+import {
+  buildCampusWhereConditions,
+  buildCampusOrderBy,
+} from "#queries/campus.query.js";
 import {
   validatePaginationParams,
   validateSortParams,
@@ -11,27 +15,7 @@ import {
 } from "#utils/validation.js";
 import { CAMPUS_ERRORS, CAMPUS_QUERY } from "#config/pagination.js";
 import slugify from "slugify";
-import { AppError } from "#src/utils/appError.js";
-
-function buildCampusWhereConditions(search, filters) {
-  const conditions = [];
-  if (search) {
-    conditions.push(
-      or(
-        ilike(campuses.name, `%${search}%`),
-        ilike(campuses.slug, `%${search}%`)
-      )
-    );
-  }
-  if (filters.name) conditions.push(ilike(campuses.name, `%${filters.name}%`));
-  if (filters.slug) conditions.push(ilike(campuses.slug, `%${filters.slug}%`));
-  return conditions;
-}
-
-function buildCampusOrderBy(sortBy, order) {
-  const sortField = campuses[sortBy] || campuses.createdAt;
-  return order === "asc" ? asc(sortField) : desc(sortField);
-}
+import { AppError } from "#src/utils/AppError.js";
 
 export const createCampus = async payload => {
   try {
@@ -59,9 +43,6 @@ export const createCampus = async payload => {
     if (existingName)
       throw new AppError(`Campus with name ${name} already exists`, 409);
 
-    if (error.code === "23505") {
-      throw new AppError("Campus already exists", 409);
-    }
     // 3️⃣ Fetch or reuse coordinates
     let lat = null;
     let lon = null;

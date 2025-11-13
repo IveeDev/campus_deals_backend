@@ -1,7 +1,11 @@
 import logger from "#src/config/logger.js";
 import { db } from "#config/database.js";
 import { users } from "#models/user.model.js";
-import { asc, desc, ilike, or, eq, and, count } from "drizzle-orm";
+import {
+  buildUserWhereConditions,
+  buildUserOrderBy,
+} from "#src/queries/user.query.js";
+import { eq, and, count } from "drizzle-orm";
 import {
   validatePaginationParams,
   validateSortParams,
@@ -10,104 +14,10 @@ import {
   ValidationError,
 } from "#utils/validation.js";
 import { USER_ERRORS, USER_QUERY } from "#config/pagination.js";
-import { AppError } from "#src/utils/appError.js";
+import { AppError } from "#src/utils/AppError.js";
 
 /**
- * @typedef {Object} UserQueryOptions
- * @property {number} [page=1] - Current page number
- * @property {number} [limit=10] - Items per page (max 100)
- * @property {string} [sortBy='createdAt'] - Field to sort by
- * @property {'asc'|'desc'} [order='desc'] - Sort order
- * @property {string} [search=''] - Search term for name, email, or phone
- * @property {Object} [filters={}] - Additional filters
- * @property {string} [filters.role] - Filter by user role
- * @property {boolean|string} [filters.is_verified] - Filter by verification status
- */
-
-/**
- * @typedef {Object} UserListResponse
- * @property {Object} meta - Pagination metadata
- * @property {number} meta.total - Total number of items
- * @property {number} meta.page - Current page
- * @property {number} meta.limit - Items per page
- * @property {number} meta.totalPages - Total number of pages
- * @property {boolean} meta.hasNext - Whether there are more pages
- * @property {boolean} meta.hasPrev - Whether there are previous pages
- * @property {Array<Object>} data - User data array
- */
-
-/**
- * Builds where conditions for user query
- * @private
- * @param {string} search - Sanitized search term
- * @param {Object} filters - Validated filters
- * @returns {Array} Array of where conditions
- */
-function buildWhereConditions(search, filters) {
-  const conditions = [];
-
-  // Search conditions
-  if (search) {
-    conditions.push(
-      or(
-        ilike(users.name, `%${search}%`),
-        ilike(users.email, `%${search}%`),
-        ilike(users.phone, `%${search}%`)
-      )
-    );
-  }
-
-  // Filter conditions
-  if (filters.role) {
-    conditions.push(eq(users.role, filters.role));
-  }
-
-  if (filters.is_verified !== undefined) {
-    conditions.push(eq(users.is_verified, filters.is_verified));
-  }
-
-  return conditions;
-}
-
-/**
- * Builds order by clause for user query
- * @private
- * @param {string} sortBy - Validated sort field
- * @param {string} order - Validated order direction
- * @returns {Function} Drizzle order function
- */
-function buildOrderBy(sortBy, order) {
-  const sortField = users[sortBy] || users.createdAt;
-  return order === "asc" ? asc(sortField) : desc(sortField);
-}
-
-/**
- * Get paginated, sortable, searchable list of users with comprehensive validation
- *
- * @param {UserQueryOptions} options - Query options
- * @returns {Promise<UserListResponse>} Paginated user data with metadata
- *
- * @throws {ValidationError} When input parameters are invalid
- * @throws {Error} When database operation fails
- *
- * @example
- * ```javascript
- * // Basic usage
- * const result = await getAllUsers({ page: 1, limit: 20 });
- *
- * // With search and filters
- * const result = await getAllUsers({
- *   page: 1,
- *   limit: 10,
- *   search: 'john',
- *   sortBy: 'name',
- *   order: 'asc',
- *   filters: {
- *     role: 'admin',
- *     is_verified: true
- *   }
- * });
- * ```
+ 
  */
 export const getAllUsers = async (options = {}) => {
   const startTime = Date.now();
@@ -144,12 +54,12 @@ export const getAllUsers = async (options = {}) => {
     });
 
     // Build query conditions
-    const whereConditions = buildWhereConditions(search, filters);
+    const whereConditions = buildUserWhereConditions(search, filters);
     const whereCondition = whereConditions.length
       ? and(...whereConditions)
       : undefined;
 
-    const orderBy = buildOrderBy(sortBy, order);
+    const orderBy = buildUserOrderBy(sortBy, order);
 
     // Execute queries in parallel for better performance
     const [data, totalResult] = await Promise.all([
@@ -230,10 +140,7 @@ export const getAllUsers = async (options = {}) => {
 };
 
 /**
- * Get a single user by ID
- * @param {number} id - User ID
- * @returns {Promise<Object>} User data (excludes password)
- * @throws {Error} When user is not found
+
  */
 export const getUserById = async id => {
   try {
@@ -260,20 +167,6 @@ export const getUserById = async id => {
   }
 };
 
-/**
- * Update a user by ID
- * @param {number} id - User ID
- * @param {Object} updates - Fields to update
- * @returns {Promise<Object>} Updated user data (excludes password)
- * @throws {Error} When user is not found or email already exists
- */
-
-/**
- * Delete a user by ID
- * @param {number} id - User ID
- * @returns {Promise<Object>} Deleted user data
- * @throws {Error} When user is not found
- */
 export const deleteUser = async id => {
   try {
     // First check if user exists

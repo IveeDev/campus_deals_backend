@@ -1,7 +1,7 @@
 import logger from "#src/config/logger.js";
-import { AppError } from "#src/utils/appError.js";
+import { AppError } from "#src/utils/AppError.js";
 
-export const errorHandler = (err, res) => {
+export const errorHandler = (err, req, res, next) => {
   logger.error(`❌ ${err.message}`, { stack: err.stack });
 
   // Handle AppError explicitly

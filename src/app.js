@@ -5,6 +5,7 @@ import authRoute from "#routes/auth.routes.js";
 import userRoute from "#routes/user.routes.js";
 import campusRoute from "#routes/campus.routes.js";
 import categoryRoute from "#routes/category.routes.js";
+import listingRoute from "#routes/listing.routes.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import logger from "#config/logger.js";
@@ -44,6 +45,7 @@ app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/users", userRoute);
 app.use("/api/v1/campuses", campusRoute);
 app.use("/api/v1/categories", categoryRoute);
+app.use("/api/v1/listings", listingRoute);
 
 app.use((req, res) => {
   res.status(404).json({ error: "Routes not found" });

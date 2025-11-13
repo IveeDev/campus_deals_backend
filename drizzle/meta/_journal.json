@@ -29,6 +29,20 @@
       "when": 1762092539395,
       "tag": "0003_mute_magneto",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1762718491796,
+      "tag": "0004_sloppy_fat_cobra",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1762718590005,
+      "tag": "0005_easy_hammerhead",
+      "breakpoints": true
     }
   ]
 }

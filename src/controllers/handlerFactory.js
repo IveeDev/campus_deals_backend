@@ -1,5 +1,5 @@
 import logger from "#src/config/logger.js";
-import { AppError } from "#src/utils/appError.js";
+import { AppError } from "#src/utils/AppError.js";
 import { formatValidationError } from "#src/utils/format.js";
 
 export const deleteOne = ({ schema, service, resourceName }) => {
