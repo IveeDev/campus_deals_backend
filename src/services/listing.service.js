@@ -1,5 +1,7 @@
 import { db } from "#config/database.js";
 import { listings } from "#models/listing.model.js";
+import { campuses } from "#models/campus.model.js";
+import { categories } from "#models/category.model.js";
 import { listingImages } from "#models/listing_image.model.js";
 import { and, eq, ne, gte, lte, asc, desc, count, inArray } from "drizzle-orm";
 
@@ -134,8 +136,18 @@ export const createListing = async payload => {
       images: imageRecords,
     };
   } catch (error) {
-    logger.error(`❌ Error creating listing: ${error.message}`);
-    if (error instanceof AppError) throw error;
+    const code = error.code || error.cause?.code;
+    if (code === "23503") {
+      throw new AppError(
+        "Invalid foreign key value. Check campus_id or category_id.",
+        400
+      );
+    }
+
+    // Re-throw AppError or wrap other errors
+    if (error.isOperational) throw error;
+
+    logger.error(`Error updating listing ${id}: ${error.message}`);
     throw new AppError(error.message || "Internal server error", 500);
   }
 };
@@ -192,8 +204,6 @@ export const getListingById = async id => {
     throw error;
   }
 };
-
-// export const deleteListing = async id => {};
 
 export const softDeleteListing = async (id, userId) => {
   try {
@@ -271,8 +281,20 @@ export const updateListing = async (id, userId, payload, files = []) => {
     logger.info(`✅ Listing ${id} updated by user ${userId}`);
     return updatedListing;
   } catch (error) {
+    // Handle foreign key violation from Postgres (extra safety)
+    const code = error.code || error.cause?.code;
+    if (code === "23503") {
+      throw new AppError(
+        "Invalid foreign key value. Check campus_id or category_id.",
+        400
+      );
+    }
+
+    // Re-throw AppError or wrap other errors
+    if (error.isOperational) throw error;
+
     logger.error(`Error updating listing ${id}: ${error.message}`);
-    throw error;
+    throw new AppError(error.message || "Internal server error", 500);
   }
 };
 

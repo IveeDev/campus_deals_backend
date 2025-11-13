@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { eq } from "drizzle-orm";
 import { db } from "#config/database.js";
 import { users } from "#models/user.model.js";
+import { AppError } from "#src/utils/AppError.js";
 
 export const hashPassword = async password => {
   try {
@@ -30,10 +31,11 @@ export const authenticateUser = async ({ email, password }) => {
       .where(eq(users.email, email))
       .limit(1);
 
-    if (!user) throw new Error("User not found");
+    if (!user) throw new AppError("User not found", 404);
 
     const isPasswordValid = await comparePassword(password, user.password);
-    if (!isPasswordValid) throw new Error("Invalid password");
+
+    if (!isPasswordValid) throw new AppError("Invalid credentials", 401);
 
     logger.info(`User ${user.email} authenticated successfully!`);
     return {
@@ -71,12 +73,16 @@ export const createUser = async ({ name, email, password, phone }) => {
     logger.info(`✅ User ${newUser.email} created successfully!`);
     return newUser;
   } catch (error) {
-    // Handle PostgreSQL unique constraint error
-    if (error.message.includes("duplicate key")) {
-      throw new Error("User with this email already exists");
+    const code = error.code || error.cause?.code;
+
+    if (code === "23505") {
+      throw new AppError(
+        `Email ${email} already exists. Please use another email.`,
+        409
+      );
     }
 
-    logger.error(`❌ Error creating user: ${error.message}`);
-    throw error;
+    // Other errors
+    throw new AppError(error.message || "Internal server error", 500);
   }
 };
