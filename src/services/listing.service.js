@@ -416,7 +416,7 @@ export const getAllListings = async (options = {}) => {
     return response;
   } catch (error) {
     logger.error(`[${requestId}] Error fetching listings: ${error.message}`);
-    throw new Error(LISTING_ERRORS.FETCH_FAILED);
+    throw new AppError(LISTING_ERRORS.FETCH_FAILED);
   }
 };
 
