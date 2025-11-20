@@ -50,7 +50,7 @@ app.use("/api/v1/listings", listingRoute);
 app.use("/api/v1", favoriteRoute);
 
 app.use((req, res) => {
-  res.status(404).json({ error: "Routes not found" });
+  res.status(404).json({ error: "Route not found" });
 });
 
 // Global error handler (MUST be last)

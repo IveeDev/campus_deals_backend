@@ -25,7 +25,9 @@ export const deleteOne = ({ schema, service, resourceName }) => {
 
       res.status(200).json({
         message: `${resourceName} deleted successfully`,
-        data: deletedResource,
+        result: {
+          data: deletedResource,
+        },
       });
     } catch (error) {
       logger.error(`Error deleting ${resourceName}: ${error.message}`);
@@ -70,7 +72,9 @@ export const updateOne = ({
       logger.info(`${resourceName} ${id} updated successfully`);
       res.status(200).json({
         message: `${resourceName} updated successfully`,
-        data: updatedResource,
+        result: {
+          data: updatedResource,
+        },
       });
     } catch (error) {
       logger.error(`Error updating ${resourceName}: ${error.message}`);
@@ -105,7 +109,7 @@ export const getOne = ({ schema, service, resourceName }) => {
 
       res.status(200).json({
         message: `${resourceName} retrieved successfully`,
-        data: {
+        result: {
           data: resource,
         },
       });
@@ -130,7 +134,9 @@ export const getSlug = ({ service, resourceName }) => {
 
       res.status(200).json({
         message: `${resourceName} retrieved successfully`,
-        data: resource,
+        result: {
+          data: resource,
+        },
       });
     } catch (error) {
       logger.error(`Error fetching ${resourceName}: ${error.message}`);
@@ -157,7 +163,9 @@ export const createOne = ({ schema, service, resourceName }) => {
       const resource = await service(validationResult.data);
       res.status(201).json({
         message: `${resourceName} created successfully!`,
-        data: resource,
+        result: {
+          data: resource,
+        },
       });
     } catch (error) {
       logger.error(`Error creating ${resourceName}: ${error.message}`);
