@@ -5,43 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1760074194455,
-      "tag": "0000_perpetual_sharon_ventura",
+      "when": 1764298838240,
+      "tag": "0000_mixed_next_avengers",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1760444475779,
-      "tag": "0001_tired_venus",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1762089899017,
-      "tag": "0002_milky_flatman",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1762092539395,
-      "tag": "0003_mute_magneto",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1762718491796,
-      "tag": "0004_sloppy_fat_cobra",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1762718590005,
-      "tag": "0005_easy_hammerhead",
+      "when": 1764634406486,
+      "tag": "0001_sticky_cable",
       "breakpoints": true
     }
   ]

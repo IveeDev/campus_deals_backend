@@ -7,6 +7,8 @@ import campusRoute from "#routes/campus.routes.js";
 import categoryRoute from "#routes/category.routes.js";
 import listingRoute from "#routes/listing.routes.js";
 import favoriteRoute from "#routes/favorite.routes.js";
+import reviewRoute from "#routes/review.routes.js";
+import messageRoute from "#routes/message.routes.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import logger from "#config/logger.js";
@@ -48,6 +50,8 @@ app.use("/api/v1/campuses", campusRoute);
 app.use("/api/v1/categories", categoryRoute);
 app.use("/api/v1/listings", listingRoute);
 app.use("/api/v1", favoriteRoute);
+app.use("/api/v1", reviewRoute);
+app.use("/api/v1", messageRoute);
 
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });

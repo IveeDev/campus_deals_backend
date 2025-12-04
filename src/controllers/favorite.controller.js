@@ -6,18 +6,19 @@ import { formatValidationError } from "#src/utils/format.js";
 
 export const addFavorite = catchAsync(async (req, res) => {
   const userId = req.user.id;
-  const IdValidation = listingIdSchema.safeParse({ id: req.params.listingId });
-  console.log("Validation Result:", IdValidation);
+  const validationResult = listingIdSchema.safeParse({
+    id: req.params.listingId,
+  });
 
-  if (!IdValidation.success) {
+  if (!validationResult.success) {
     throw new AppError(
-      `Invalid listing  ID`,
+      "Invalid listing  ID",
       400,
-      formatValidationError(IdValidation.error)
+      formatValidationError(validationResult.error)
     );
   }
 
-  const { id: listingId } = IdValidation.data;
+  const { id: listingId } = validationResult.data;
 
   const favorite = await favoriteService.addFavorite(userId, listingId);
   res
@@ -25,7 +26,9 @@ export const addFavorite = catchAsync(async (req, res) => {
 
     .json({
       message: "Listing added to favorites",
-      data: favorite,
+      result: {
+        data: favorite,
+      },
     });
 });
 
@@ -45,6 +48,8 @@ export const getUserFavorites = catchAsync(async (req, res) => {
   res.status(200).json({
     status: "success",
     length: favorites.length,
-    data: favorites,
+    result: {
+      data: favorites,
+    },
   });
 });

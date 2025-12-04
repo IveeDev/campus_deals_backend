@@ -1,1 +1,0 @@
-ALTER TABLE "listings" DROP COLUMN "image_url";

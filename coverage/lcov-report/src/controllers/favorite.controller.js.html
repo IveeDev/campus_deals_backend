@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">28% </span>
+                <span class="strong">25.45% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>14/50</span>
+                <span class='fraction'>14/55</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">28% </span>
+                <span class="strong">25.45% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>14/50</span>
+                <span class='fraction'>14/55</span>
             </div>
         
             
@@ -113,7 +113,12 @@
 <a name='L48'></a><a href='#L48'>48</a>
 <a name='L49'></a><a href='#L49'>49</a>
 <a name='L50'></a><a href='#L50'>50</a>
-<a name='L51'></a><a href='#L51'>51</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -142,19 +147,24 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -171,18 +181,19 @@ import { formatValidationError } from "#src/utils/format.js";
 &nbsp;
 export const addFavorite = catchAsync(async (req, res) =&gt; {
 <span class="cstat-no" title="statement not covered" >  const userId = req.user.id;</span>
-<span class="cstat-no" title="statement not covered" >  const IdValidation = listingIdSchema.safeParse({ id: req.params.listingId });</span>
-<span class="cstat-no" title="statement not covered" >  console.log("Validation Result:", IdValidation);</span>
+<span class="cstat-no" title="statement not covered" >  const validationResult = listingIdSchema.safeParse({</span>
+<span class="cstat-no" title="statement not covered" >    id: req.params.listingId,</span>
+<span class="cstat-no" title="statement not covered" >  });</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >  if (!IdValidation.success) {</span>
+<span class="cstat-no" title="statement not covered" >  if (!validationResult.success) {</span>
 <span class="cstat-no" title="statement not covered" >    throw new AppError(</span>
-<span class="cstat-no" title="statement not covered" >      `Invalid listing  ID`,</span>
+<span class="cstat-no" title="statement not covered" >      "Invalid listing  ID",</span>
 <span class="cstat-no" title="statement not covered" >      400,</span>
-<span class="cstat-no" title="statement not covered" >      formatValidationError(IdValidation.error)</span>
+<span class="cstat-no" title="statement not covered" >      formatValidationError(validationResult.error)</span>
 <span class="cstat-no" title="statement not covered" >    );</span>
 <span class="cstat-no" title="statement not covered" >  }</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >  const { id: listingId } = IdValidation.data;</span>
+<span class="cstat-no" title="statement not covered" >  const { id: listingId } = validationResult.data;</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >  const favorite = await favoriteService.addFavorite(userId, listingId);</span>
 <span class="cstat-no" title="statement not covered" >  res</span>
@@ -190,7 +201,9 @@ export const addFavorite = catchAsync(async (req, res) =&gt; {
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    .json({</span>
 <span class="cstat-no" title="statement not covered" >      message: "Listing added to favorites",</span>
-<span class="cstat-no" title="statement not covered" >      data: favorite,</span>
+<span class="cstat-no" title="statement not covered" >      result: {</span>
+<span class="cstat-no" title="statement not covered" >        data: favorite,</span>
+<span class="cstat-no" title="statement not covered" >      },</span>
 <span class="cstat-no" title="statement not covered" >    });</span>
 });
 &nbsp;
@@ -210,7 +223,9 @@ export const getUserFavorites = catchAsync(async (req, res) =&gt; {
 <span class="cstat-no" title="statement not covered" >  res.status(200).json({</span>
 <span class="cstat-no" title="statement not covered" >    status: "success",</span>
 <span class="cstat-no" title="statement not covered" >    length: favorites.length,</span>
-<span class="cstat-no" title="statement not covered" >    data: favorites,</span>
+<span class="cstat-no" title="statement not covered" >    result: {</span>
+<span class="cstat-no" title="statement not covered" >      data: favorites,</span>
+<span class="cstat-no" title="statement not covered" >    },</span>
 <span class="cstat-no" title="statement not covered" >  });</span>
 });
 &nbsp;</pre></td></tr></table></pre>
@@ -220,7 +235,7 @@ export const getUserFavorites = catchAsync(async (req, res) =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-20T19:43:41.097Z
+                at 2025-12-04T20:02:02.851Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

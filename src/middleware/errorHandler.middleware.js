@@ -1,4 +1,3 @@
-import logger from "#src/config/logger.js";
 import { AppError } from "#src/utils/AppError.js";
 
 const handleDuplicateFieldsDB = err => {

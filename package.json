@@ -29,9 +29,8 @@
     "db:studio": "drizzle-kit studio",
     "dev:docker": "sh ./scripts/dev.sh",
     "prod:docker": "sh ./scripts/prod.sh",
-    "test": "dotenv -e .env.test -- cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll --verbose"
+    "test": "dotenv -e .env.test -- cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll --verbose --coverage"
   },
-  
   "repository": {
     "type": "git",
     "url": "git+https://github.com/IveeDev/campus_deals_backend.git"
@@ -61,6 +60,7 @@
     "multer-storage-cloudinary": "^4.0.0",
     "qs": "^6.14.0",
     "slugify": "^1.6.6",
+    "socket.io": "^4.8.1",
     "winston": "^3.18.3",
     "zod": "^4.1.12"
   },

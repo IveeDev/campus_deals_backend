@@ -3,7 +3,7 @@ import { db } from "#config/database.js";
 import { favorites } from "#models/favorite.model.js";
 import { listings } from "#models/listing.model.js";
 import { listingImages } from "#models/listing_image.model.js";
-import { ilike, eq, and, count } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 import { AppError } from "#src/utils/AppError.js";
 

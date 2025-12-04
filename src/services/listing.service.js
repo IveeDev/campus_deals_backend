@@ -1,7 +1,5 @@
 import { db } from "#config/database.js";
 import { listings } from "#models/listing.model.js";
-import { campuses } from "#models/campus.model.js";
-import { categories } from "#models/category.model.js";
 import { listingImages } from "#models/listing_image.model.js";
 import { and, eq, ne, gte, lte, asc, desc, count, inArray } from "drizzle-orm";
 
@@ -147,7 +145,7 @@ export const createListing = async payload => {
     // Re-throw AppError or wrap other errors
     if (error.isOperational) throw error;
 
-    logger.error(`Error updating listing ${id}: ${error.message}`);
+    logger.error(`Error updating listing: ${error.message}`);
     throw new AppError(error.message || "Internal server error", 500);
   }
 };
