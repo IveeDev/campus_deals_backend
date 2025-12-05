@@ -44,6 +44,8 @@
   "homepage": "https://github.com/IveeDev/campus_deals_backend#readme",
   "description": "",
   "dependencies": {
+    "@arcjet/inspect": "^1.0.0-beta.15",
+    "@arcjet/node": "^1.0.0-beta.15",
     "@neondatabase/serverless": "^1.0.2",
     "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
