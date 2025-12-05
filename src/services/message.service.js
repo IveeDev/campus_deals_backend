@@ -198,10 +198,10 @@ export const getUserConversations = async userId => {
           },
           listing: conv.listingId
             ? {
-              id: conv.listingId,
-              title: conv.listingTitle,
-              price: conv.listingPrice,
-            }
+                id: conv.listingId,
+                title: conv.listingTitle,
+                price: conv.listingPrice,
+              }
             : null,
           lastMessage: {
             content: conv.lastMessageContent,

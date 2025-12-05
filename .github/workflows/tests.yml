@@ -1,0 +1,102 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      NODE_ENV: test
+      NODE_OPTIONS: --experimental-vm-modules
+      DATABASE_URL: postgresql://test:test@localhost:5432/test_db
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        id: test
+        run: |
+          set +e
+          npm test 2>&1 | tee test-output.log
+          TEST_EXIT_CODE=$?
+          set -e
+
+          if [ $TEST_EXIT_CODE -eq 0 ]; then
+            echo "✅ All tests passed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Tests failed!" >> $GITHUB_STEP_SUMMARY
+            echo "::error::Tests failed. Check the logs for details."
+          fi
+
+          # Extract coverage information if available
+          if [ -f coverage/lcov-report/index.html ]; then
+            echo "📊 **Coverage Report**" >> $GITHUB_STEP_SUMMARY
+            echo "Coverage reports generated successfully." >> $GITHUB_STEP_SUMMARY
+          fi
+
+          exit $TEST_EXIT_CODE
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports-${{ github.run_number }}
+          path: |
+            coverage/
+            !coverage/tmp/
+          retention-days: 30
+
+      - name: Add test failure annotations
+        if: failure()
+        run: |
+          echo "::notice::Tests failed. Please check the test output for specific failures."
+          if [ -f test-output.log ]; then
+            # Extract failed test information and add as annotations
+            grep -n "FAIL\|Error\|✕" test-output.log | head -10 | while read line; do
+              echo "::error::$line"
+            done || true
+          fi
+
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f coverage/coverage-summary.json ]; then
+            echo "### Coverage Summary" >> $GITHUB_STEP_SUMMARY
+            node -e "
+              const fs = require('fs');
+              try {
+                const coverage = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
+                const total = coverage.total;
+                console.log('| Metric | Coverage |');
+                console.log('|--------|----------|');
+                console.log('| Lines | ' + total.lines.pct + '% |');
+                console.log('| Functions | ' + total.functions.pct + '% |');
+                console.log('| Branches | ' + total.branches.pct + '% |');
+                console.log('| Statements | ' + total.statements.pct + '% |');
+              } catch(e) {
+                console.log('Coverage summary not available');
+              }
+            " >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Job Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Run Number:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
