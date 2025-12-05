@@ -1,0 +1,86 @@
+version: "3.8"
+
+services:
+  # Application service for production
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: campusdeals-app-prod
+    ports:
+      - "${PORT:-3000}:3000"
+    env_file:
+      - .env.production
+    volumes:
+      # Only mount logs directory in production
+      - ./logs:/app/logs
+    networks:
+      - campusdeals-network
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Production security and resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    # Read-only root filesystem (except for logs)
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+      - /app/logs:noexec,nosuid,size=100m
+
+  # Optional: Add a reverse proxy for production (uncomment if needed)
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: akquisitions-nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./ssl:/etc/ssl/certs:ro
+  #   depends_on:
+  #     - app
+  #   networks:
+  #     - akquisitions-network
+  #   restart: unless-stopped
+
+  # Optional: Add monitoring/logging services for production
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: akquisitions-prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+  #   networks:
+  #     - akquisitions-network
+  #   restart: unless-stopped
+
+networks:
+  campusdeals-network:
+    driver: bridge

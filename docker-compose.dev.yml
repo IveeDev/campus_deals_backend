@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  # Neon Local proxy service for development
+  neon-local:
+    image: neondatabase/neon_local:latest
+    container_name: campusdeals-neon-local
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env.development
+
+    volumes:
+      #   Uncomment the following lines if you want persistent branches per Git branch
+      - ./.neon_local/:/tmp/.neon_local
+      - ./.git/HEAD:/tmp/.git/HEAD:ro,consistent
+    networks:
+      - campusdeals-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "5432", "-U", "neon"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Application service for development
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: campusdeals-app-dev
+    ports:
+      - "${PORT:-3000}:3000"
+    env_file:
+      - .env.development
+    volumes:
+      # Mount source code for hot reloading in development
+      - .:/app
+      - /app/node_modules
+      # Mount logs directory
+      - ./logs:/app/logs
+    depends_on:
+      neon-local:
+        condition: service_healthy
+    networks:
+      - campusdeals-network
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  campusdeals-network:
+    driver: bridge
